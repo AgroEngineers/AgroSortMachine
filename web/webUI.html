@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Web UI</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap');
+
+        * {
+            font-family: "Roboto", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            background-color: #373737;
+
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .root {
+            background-color: #474747;
+
+            border-radius: 10px;
+            width: 65%;
+            height: 98%;
+            margin: 10px;
+
+            display: grid;
+            grid-template-columns: 1fr 1.25fr;
+            grid-template-rows: 1fr 1fr;
+        }
+
+        .root > div {
+            background-color: #575757;
+            margin: 5px;
+            border-radius: 10px;
+        }
+
+        h1 {
+            color: #FFFFFF;
+            background-color: #3e3e3e;
+            border-radius: 10px;
+            text-align: center;
+            margin: 5px;
+        }
+
+        /* Camera */
+        .viewport-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 89%;
+        }
+
+        .viewport-container img {
+            min-width: 480px;
+            min-height: 360px;
+            max-width: 480px;
+            max-height: 360px;
+            background-color: #676767;
+            margin: 5px;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        table {
+            border-collapse: separate;
+            width: 96%;
+            height: 86%;
+            margin: 10px;
+            border-radius: 10px;
+            background-color: #676767;
+        }
+
+        th {
+            height: 10%;
+        }
+
+        td {
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            background-color: #2e2e2e;
+        }
+
+        table .name {
+            border-radius: 10px 0 0 10px;
+            width: 30%;
+        }
+
+        table .data {
+            border-radius: 0 10px 10px 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        table .data > .data-color {
+            margin-right: 10px;
+            width: 10%;
+            height: 40%;
+            border: 2px solid #5e5e5e;
+        }
+
+        td, th {
+            text-align: center;
+        }
+
+        td[aria-disabled="true"] {
+            color: #6e6e6e;
+        }
+
+
+        .component-states-container {
+            margin-right: 10px;
+            background-color: #4c4c4c;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .component-state-container {
+            display: inline-block;
+        }
+
+        .component-state-container input[type=radio] {
+            display: none;
+        }
+
+        .component-state-container label {
+            display: inline-block;
+            cursor: pointer;
+            padding: 0 15px;
+            line-height: 34px;
+            border-radius: 6px;
+            user-select: none;
+            color: #ffffff;
+        }
+
+        .component-state-container input[type=radio]:not(checked) + label {
+            background: #222222;
+        }
+
+        .component-state-container input[type=radio]:checked + label {
+            background: #818181;
+        }
+
+        .component-state-container label:hover {
+            color: #9f9f9f;
+        }
+
+        .component-state-container input[type=radio]:disabled + label {
+            color: #4a4a4a;
+        }
+
+        .visual div {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 89%;
+        }
+
+        .visual div canvas {
+            background-color: #676767;
+            border-radius: 10px;
+            margin: 5px;
+            width: 480px;
+            height: 360px;
+        }
+
+        #modalOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 1);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #modalWindow {
+            background-color: #676767;
+            border: 5px solid #777777;
+            padding: 5px;
+            border-radius: 8px;
+            min-width: 300px;
+            text-align: center;
+
+            height: 50%;
+            width: 45%;
+
+            display: grid;
+            grid-template-columns: 0.75fr 2fr;
+            grid-template-rows: 1fr;
+        }
+
+        .modal-list {
+            display: flex;
+            flex-direction: column;
+            margin: 5px;
+            background-color: #3e3e3e;
+            border-radius: 10px;
+        }
+
+        .modal-list li {
+            list-style-type: none;
+            background-color: #1e1e1e;
+            margin: 5px;
+            padding: 5px;
+            border-radius: 10px;
+        }
+
+        .modal-list .settings-save-container {
+            margin-top: auto;
+        }
+
+        .settings-save-container .disallowed {
+            color: #666666;
+            cursor: default;
+        }
+
+        .modal-list li a {
+            color: white;
+            text-decoration: none;
+            font-size: 1.5rem;
+        }
+
+        .modal-list h2 {
+            color: white;
+            margin: 5px;
+        }
+
+        .modal-settings {
+            margin: 5px;
+            background-color: #3e3e3e;
+            border-radius: 10px;
+        }
+
+        .modal-settings div h2 {
+            color: white;
+            text-align: left;
+        }
+
+        .modal-settings > div {
+            margin: 5px;
+            background-color: #1e1e1e;
+            border-radius: 10px;
+            padding: 5px 5px 10px;
+        }
+
+        select[disabled] {
+            background-color: #acfb64;
+        }
+
+        .devices-container {
+            display: flex;
+        }
+
+        .devices-container h3 {
+            color: white;
+            margin-bottom: 5px;
+        }
+
+        .devices-container div {
+            padding: 0;
+            width: 50%;
+        }
+
+        .devices-container div select {
+            border-radius: 5px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+<div id="modalOverlay">
+    <div id="modalWindow">
+        <ul class="modal-list">
+            <h2>Settings</h2>
+            <li>
+                <a href="#settings-devices">#settings-devices</a>
+            </li>
+            <li>
+                <a href="#settings-ai">#settings-ai</a>
+            </li>
+            <li class="settings-save-container">
+                <a id="setting-save" onclick="closeSettings()" class="disallowed" href="#">Save & Close</a>
+            </li>
+        </ul>
+        <div class="modal-settings">
+            <div id="settings-devices">
+                <h2>Devices</h2>
+                <div class="devices-container">
+                    <div id="hardware-settings">
+                        <h3>Machine</h3>
+                        <select id="hardware-port"></select>
+                    </div>
+                    <div id="camera-settings">
+                        <h3>Camera</h3>
+                        <select id="camera-port"></select>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="root" id="root">
+    <div class="camera" id="camera">
+        <h1>Camera viewport</h1>
+        <div class="viewport-container">
+            <img id="camera-viewport" src="https://placehold.jp/480x360.png" alt="NO_VIDEO_DATA_ON_INPUT_CHANNEL">
+        </div>
+    </div>
+    <div class="visual" id="visual">
+        <h1>Machine preview</h1>
+        <div>
+            <canvas id="preview" width="480" height="360"></canvas>
+        </div>
+    </div>
+    <div class="data" id="data">
+        <h1>Camera data</h1>
+        <table>
+            <tbody>
+            <tr>
+                <th>Parameter Name</th>
+                <th>Parameter Data</th>
+            </tr>
+            <tr>
+                <td class="name">Type</td>
+                <td class="data" id="parameter-type">Oleg (People)</td>
+            </tr>
+            <tr>
+                <td class="name">Color (R, G, B)</td>
+                <td class="data" id="parameter-color">
+                    <div id="parameter-color-box" style="background-color: rgb(197, 161, 137)" class="data-color"></div>
+                    197, 161, 137
+                </td>
+            </tr>
+            <tr>
+                <td class="name">Size (W, H, D)</td>
+                <td class="data" id="parameter-size">40, 175, 15 (cm)</td>
+            </tr>
+            <tr>
+                <td class="name">Container (Id)</td>
+                <td class="data" id="parameter-container">8 (Hugs)</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+    <div class="controls" id="controls">
+        <h1>Machine controls</h1>
+        <table>
+            <tbody>
+            <tr>
+                <th>Component Name</th>
+                <th>Component State</th>
+            </tr>
+            <tr>
+                <td class="name">Mode</td>
+                <td class="data">
+                    <div class="component-states-container">
+                        <div class="component-state-container">
+                            <input id="mode-auto" type="radio" name="mode" value="a">
+                            <label for="mode-auto">Automatic</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="mode-manual" type="radio" name="mode" value="m" checked>
+                            <label for="mode-manual">Manual</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td id="component-motor-controls-name" class="name component-name" aria-disabled="false">Motor</td>
+                <td id="component-motor-controls-data" class="data">
+                    <div class="component-states-container">
+                        <div class="component-state-container">
+                            <input id="motor-stop" class="component" type="radio" name="motor" value="s" checked>
+                            <label for="motor-stop">Stop</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="motor-forward" class="component" type="radio" name="motor" value="f">
+                            <label for="motor-forward">Forward</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="motor-backward" class="component" type="radio" name="motor" value="b">
+                            <label for="motor-backward">Backward</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td id="component-servo-1-controls-name" class="name component-name" aria-disabled="false">Servo №1</td>
+                <td id="component-servo-1-controls-data" class="data">
+                    <div class="component-states-container">
+                        <div class="component-state-container">
+                            <input id="servo-1-open" class="component servo" type="radio" name="servo-1" value="o"
+                                   checked>
+                            <label for="servo-1-open">Open</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-1-left" class="component servo" type="radio" name="servo-1" value="l">
+                            <label for="servo-1-left">Left</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-1-right" class="component servo" type="radio" name="servo-1" value="r">
+                            <label for="servo-1-right">Right</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td id="component-servo-2-controls-name" class="name component-name" aria-disabled="false">Servo №2</td>
+                <td id="component-servo-2-controls-data" class="data">
+                    <div class="component-states-container">
+                        <div class="component-state-container">
+                            <input id="servo-2-open" class="component servo" type="radio" name="servo-2" value="o"
+                                   checked>
+                            <label for="servo-2-open">Open</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-2-left" class="component servo" type="radio" name="servo-2" value="l">
+                            <label for="servo-2-left">Left</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-2-right" class="component servo" type="radio" name="servo-2" value="r">
+                            <label for="servo-2-right">Right</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td id="component-servo-3-controls-name" class="name component-name" aria-disabled="false">Servo №3</td>
+                <td id="component-servo-3-controls-data" class="data">
+                    <div class="component-states-container">
+                        <div class="component-state-container">
+                            <input id="servo-3-open" class="component servo" type="radio" name="servo-3" value="o"
+                                   checked>
+                            <label for="servo-3-open">Open</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-3-left" class="component servo" type="radio" name="servo-3" value="l">
+                            <label for="servo-3-left">Left</label>
+                        </div>
+                        <div class="component-state-container">
+                            <input id="servo-3-right" class="component servo" type="radio" name="servo-3" value="r">
+                            <label for="servo-3-right">Right</label>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+</body>
+<script>
+    const MotorState = Object.freeze({
+        STOP: 's',
+        FORWARD: 'f',
+        BACKWARD: 'b',
+    });
+    const ServoState = Object.freeze({
+        OPEN: 'o',
+        LEFT: 'l',
+        RIGHT: 'r'
+    });
+
+    const ws = new WebSocket("ws://localhost:8000/api/ws");
+
+    let isControlsManual = true;
+    let motorState = MotorState.STOP;
+    let servo1State = ServoState.OPEN;
+    let servo2State = ServoState.OPEN;
+    let servo3State = ServoState.OPEN;
+    let activeContainerId = 0;
+
+    function openSettings() {
+        document.getElementById('modalOverlay').style.display = 'flex';
+    }
+
+    function closeSettings(force) {
+        if (document.getElementById("setting-save").classList.length === 0 || force) {
+            document.getElementById('modalOverlay').style.display = 'none';
+        }
+    }
+
+    const canvas = document.getElementById("preview");
+    const ctx = canvas.getContext("2d");
+
+    function drawArrow(x1, y1, x2, y2, stokeSize, withHead) {
+        const headLength = 15;
+
+        const dx = x2 - x1;
+        const dy = y2 - y1;
+        const angle = Math.atan2(dy, dx);
+
+        ctx.lineWidth = stokeSize;
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+
+        if (withHead) {
+            ctx.moveTo(x2, y2);
+            ctx.lineTo(
+                x2 - headLength * Math.cos(angle - Math.PI / 6),
+                y2 - headLength * Math.sin(angle - Math.PI / 6)
+            );
+            ctx.lineTo(
+                x2 - headLength * Math.cos(angle + Math.PI / 6),
+                y2 - headLength * Math.sin(angle + Math.PI / 6)
+            );
+            ctx.lineTo(x2, y2);
+            ctx.fill();
+        }
+    }
+
+    function drawContainer(x, y, isActive, num) {
+        const size = 50;
+
+        ctx.fillStyle = isActive ? "green" : "black";
+        ctx.fillRect(x, y, size, size);
+
+        ctx.fillStyle = "white";
+        ctx.font = "20px Roboto";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(num, x + size / 2, y + size / 2);
+    }
+    
+    function updateCanvas() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        const width = 400;
+        const height = 100;
+        
+        drawContainer(canvas.width - width, canvas.height / 2 - height - 10, activeContainerId === 1, 1);
+        drawContainer(canvas.width - width + 50, canvas.height / 2 + height - 40, activeContainerId === 2, 2);
+        drawContainer(canvas.width - width + 105, canvas.height / 2 + height - 40, activeContainerId === 3, 3);
+        drawContainer(canvas.width - width + 150, canvas.height / 2 - height - 10, activeContainerId === 4, 4);
+        drawContainer(canvas.width - width + 205, canvas.height / 2 - height - 10, activeContainerId === 5, 5);
+        drawContainer(canvas.width - width + 255, canvas.height / 2 + height - 40, activeContainerId === 6, 6);
+        drawContainer(canvas.width - 45, canvas.height / 2 - 25, activeContainerId === 7, 7);
+        
+        ctx.fillStyle = "white";
+        ctx.fillRect(canvas.width / 2 - width / 2, canvas.height / 2 - height / 2, width, height);
+        ctx.fillStyle = "lightgreen";
+        ctx.fillRect(canvas.width / 2 - width / 2, canvas.height / 2 - height / 2 - 10, width, 10);
+        ctx.fillRect(canvas.width / 2 - width / 2, canvas.height / 2 - height / 2 + height, width, 10);
+
+        ctx.fillStyle = "black";
+        switch (motorState) {
+            case MotorState.FORWARD: {
+                drawArrow((canvas.width / 2 - width / 2) + 5, canvas.height / 2 - height / 24, (canvas.width / 2 - width / 2) + 5 + width / 8, canvas.height / 2 - height / 24, 1, true)
+                break;
+            }
+            case MotorState.BACKWARD: {
+                drawArrow((canvas.width / 2 - width / 2) + 5 + width / 8, canvas.height / 2 - height / 24, (canvas.width / 2 - width / 2) + 5, canvas.height / 2 - height / 24, 1, true)
+                break;
+            }
+            case MotorState.STOP: {
+                drawArrow((canvas.width / 2 - width / 2) + 5, canvas.height / 2 - height / 24, (canvas.width / 2 - width / 2) + 5 + width / 8, canvas.height / 2 - height / 24, 1, false)
+            }
+        }
+
+        let x = (canvas.width / 2 - width / 2) + canvas.width / 5, y = canvas.height / 2 - height / 2;
+        switch (servo1State) {
+            case ServoState.OPEN:
+                drawArrow(
+                    x,
+                    y - 5,
+                    x + 100,
+                    y - 5,
+                    2, true);
+                break;
+            case ServoState.LEFT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x : x - 50,
+                    (motorState === MotorState.BACKWARD) ? y - 5 : y + 100,
+                    (motorState === MotorState.BACKWARD) ? x - 50 : x,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y - 5,
+                    2, true);
+                break;
+            case ServoState.RIGHT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x + 50 : x,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y,
+                    (motorState === MotorState.BACKWARD) ? x : x + 50,
+                    (motorState === MotorState.BACKWARD) ? y : y + 100,
+                    2, true);
+                break;
+        }
+        switch (servo2State) {
+            case ServoState.OPEN:
+                drawArrow(
+                    x + 100,
+                    y + 5 + 100,
+                    x + 100 + 100,
+                    y + 5 + 100,
+                    2, true);
+                break;
+            case ServoState.LEFT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x + 100 + 50 : x + 100,
+                    (motorState === MotorState.BACKWARD) ? y : y + 100,
+                    (motorState === MotorState.BACKWARD) ? x + 100 : x + 100 + 50,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y,
+                    2, true);
+                break;
+            case ServoState.RIGHT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x + 100 : x + 50,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y,
+                    (motorState === MotorState.BACKWARD) ? x + 50 : x + 100,
+                    (motorState === MotorState.BACKWARD) ? y : y + 100,
+                    2, true);
+                break;
+        }
+        switch (servo3State) {
+            case ServoState.OPEN:
+                drawArrow(
+                    x + 100 + 100,
+                    y - 5,
+                    x + 100 + 100 + 100,
+                    y - 5,
+                    2, true);
+                break;
+            case ServoState.LEFT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x + 100 + 100 : x - 50 + 100 + 100,
+                    (motorState === MotorState.BACKWARD) ? y - 5 : y + 100,
+                    (motorState === MotorState.BACKWARD) ? x - 50 + 100 + 100 : x + 100 + 100,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y - 5,
+                    2, true);
+                break;
+            case ServoState.RIGHT:
+                drawArrow(
+                    (motorState === MotorState.BACKWARD) ? x + 50 + 100 + 100 : x + 100 + 100,
+                    (motorState === MotorState.BACKWARD) ? y + 100 : y,
+                    (motorState === MotorState.BACKWARD) ? x + 100 + 100 : x + 50 + 100 + 100,
+                    (motorState === MotorState.BACKWARD) ? y : y + 100,
+                    2, true);
+                break;
+        }
+    }
+
+    function setMode(isManual) {
+        isControlsManual = isManual;
+        document.querySelectorAll('td.component-name').forEach(name => {
+            name.ariaDisabled = (!isManual).toString()
+        });
+        document.querySelectorAll('input[type="radio"].component').forEach(radio => {
+            radio.disabled = !isManual
+        })
+    }
+
+    function checkReady() {
+        if (document.getElementById("camera-port").disabled && document.getElementById("hardware-port").disabled) {
+            document.getElementById("modalOverlay").style.background = "rgba(0,0,0,0.5)";
+            document.getElementById("setting-save").classList.remove("disallowed");
+        }
+    }
+
+    function connectHardware(port) {
+        ws.send(JSON.stringify({
+            "type": "connectHw",
+            "port": port
+        }))
+    }
+
+    function connectCamera(port) {
+        ws.send(JSON.stringify({
+            "type": "connectCam",
+            "port": port
+        }))
+    }
+
+    function infoHardware() {
+        ws.send(JSON.stringify({
+            "type": "info"
+        }))
+    }
+
+    function updateHardware() {
+        ws.send(JSON.stringify({
+            "type": "sync",
+            "motor": motorState,
+            "servo_1": servo1State,
+            "servo_2": servo2State,
+            "servo_3": servo3State
+        }))
+    }
+
+    function updateParameter(type, aiName, r, g, b, w, h, d, containerId, containerName) {
+        document.getElementById('parameter-type').innerText = `${type} (${aiName})`;
+        
+        document.getElementById('parameter-color').innerHTML = `
+        <div id="parameter-color-box" style="background-color: rgb(${r}, ${g}, ${b})" class="data-color"></div>
+        ${r}, ${g}, ${b}`;
+        
+        document.getElementById('parameter-size').innerText = `${w}, ${h}, ${d} (cm)`;
+        document.getElementById('parameter-container').innerText = `${containerId} (${containerName})`;
+    }
+
+    ws.onopen = () => {
+        infoHardware();
+    }
+    ws.onmessage = (e) => {
+        const data = JSON.parse(e.data);
+        console.log(data)
+        switch (data.type) {
+            case "info":
+                if (!data.machine.connected) {
+                    const hwp = document.getElementById("hardware-port");
+                    hwp.innerHTML = `<option value="none">Select Machine Port</option>`;
+                    if (data.machine.availablePorts.length === 0) {
+                        hwp.innerHTML += `<option value="none">No available ports. Check hardware and reopen selector</option>`;
+                    } else {
+                        for (let port in data.machine.availablePorts) {
+                            hwp.innerHTML += `<option value="hw-%PORT%">/dev/ttyUSB%PORT%</option>`.replaceAll("%PORT%", port);
+                        }
+                    }
+                }
+                if (!data.camera.connected) {
+                    const cp = document.getElementById("camera-port");
+                    cp.innerHTML = `<option value="none">Select Camera Port</option>`;
+                    if (data.camera.availablePorts.length === 0) {
+                        cp.innerHTML += `<option value="none">No available ports. Check camera and reopen selector</option>`;
+                    } else {
+                        for (let port in data.camera.availablePorts) {
+                            cp.innerHTML += `<option value="cam-%PORT%">/dev/video%PORT%</option>`.replaceAll("%PORT%", port);
+                        }
+                    }
+                }
+                break;
+            case "connectedCam":
+                document.getElementById("camera-port").disabled = true;
+                document.getElementById("camera-viewport").src = "http://localhost:8000/api/video";
+                checkReady();
+                break;
+            case "connectedHw":
+                document.getElementById("hardware-port").disabled = true;
+                checkReady();
+                break;
+            case "sync":
+                motorState = data.motor;
+                servo1State = data.servo_1;
+                servo2State = data.servo_2;
+                servo3State = data.servo_3;
+                updateCanvas()
+                break;
+            case "parameter":
+                activeContainerId = data.containerId;
+                updateParameter(data.aiType, data.aiName, data.r, data.g, data.b, data.w, data.h, data.d, data.containerId, data.containerName);
+                break;
+        }
+    };
+    ws.onclose = () => {
+        location.reload();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('input[name="mode"]').forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                if (e.target.value === 'a') {
+                    setMode(false);
+                } else {
+                    setMode(true);
+                }
+            });
+        });
+        document.querySelectorAll('input[name="motor"]').forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                motorState = e.target.value;
+                updateHardware();
+            })
+        })
+        document.querySelectorAll('input.servo').forEach(radio => {
+            radio.addEventListener("change", (e) => {
+                switch (e.target.name.split('-')[1]) {
+                    case '1':
+                        servo1State = e.target.value;
+                        break;
+                    case '2':
+                        servo2State = e.target.value;
+                        break;
+                    case '3':
+                        servo3State = e.target.value;
+                        break;
+                }
+                updateHardware();
+            })
+        });
+        document.querySelectorAll('#settings-devices select').forEach(selector => {
+            selector.addEventListener('mousedown', (e) => {
+                infoHardware();
+            });
+            selector.addEventListener('change', (e) => {
+                const [type, value] = e.target.value.split("-");
+                switch (type) {
+                    case "hw":
+                        connectHardware(value);
+                        break;
+                    case "cam":
+                        connectCamera(value);
+                        break;
+                }
+            });
+        });
+        updateCanvas();
+        //closeSettings(true)
+    })
+</script>
+</html>
