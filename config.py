@@ -1,5 +1,6 @@
 import json
 import os
+import pathlib
 from typing import Any
 
 config_pattern = """
@@ -86,3 +87,23 @@ def find(type_, model, r, g, b, width, height):
         return c
 
     return None
+
+def get_ai_available():
+    return [p.name for p in pathlib.Path("models").glob("*.tflite")]
+
+def get_ai_classes(model_name):
+    with open(f"models/{model_name}.txt", "r") as read_file:
+        return read_file.read().splitlines()
+
+def get_container(id_):
+    for c in config["containers"]:
+        if c["id"] == id_:
+            return c
+    return None
+
+def set_container(id_, data):
+    for c in range(len(config["containers"])):
+        if config["containers"][c]["id"] == id_:
+            config["containers"][c] = data
+            break
+    update_config()

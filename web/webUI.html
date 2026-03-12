@@ -195,7 +195,7 @@
             border-radius: 8px;
             min-width: 300px;
             text-align: center;
-
+            
             height: 50%;
             width: 45%;
 
@@ -244,6 +244,8 @@
             margin: 5px;
             background-color: #3e3e3e;
             border-radius: 10px;
+            overflow-y: scroll;
+
         }
 
         .modal-settings div h2 {
@@ -300,6 +302,26 @@
             height: 40px;
             margin-top: 10px;
         }
+        #container-settings {
+            display: flex;
+            flex-direction: column;
+            justify-content: left;
+        }
+
+        #container-settings > div {
+            display: flex;
+            flex-direction: row;
+            justify-content: left;
+            color: white;
+            margin: 5px;
+            gap: 5px;
+        }
+        .ai-container select {
+            width: 50%;
+        }
+        .range-container input {
+            width: 38%;
+        }
     </style>
 </head>
 <body>
@@ -349,6 +371,55 @@
                         <div class="button-container">
                             <button onclick="upload()">Upload</button>
                         </div>
+                    </div>
+                </div>
+            </div>
+            <div id="settings-container">
+                <h2>Containers</h2>
+                <div id="container-settings">
+                    <select id="container-selector">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                        <option value="5">5</option>
+                        <option value="6">6</option>
+                        <option value="7">7</option>
+                    </select>
+                    <div class="ai-container">
+                        <h4>AI</h4>
+                        <select id="ai-container-model"></select>
+                        <select id="ai-container-type"></select>
+                    </div>
+                    <div class="range-container">
+                        <h4>Color/R</h4>
+                        <input type="text" name="container-color-r-min" id="container-color-r-min" placeholder="Red min">
+                        <p><= r <=</p>
+                        <input type="text" name="container-color-r-max" id="container-color-r-max" placeholder="Red max">
+                    </div>
+                    <div class="range-container">
+                        <h4>Color/G</h4>
+                        <input type="text" name="container-color-g-min" id="container-color-g-min" placeholder="Green min">
+                        <p><= g <=</p>
+                        <input type="text" name="container-color-g-max" id="container-color-g-max" placeholder="Green max">
+                    </div>
+                    <div class="range-container">
+                        <h4>Color/B</h4>
+                        <input type="text" name="container-color-b-min" id="container-color-b-min" placeholder="Blue min">
+                        <p><= b <=</p>
+                        <input type="text" name="container-color-b-max" id="container-color-b-max" placeholder="Blue max">
+                    </div>
+                    <div class="range-container">
+                        <h4>Scale/W</h4>
+                        <input type="text" name="container-size-w-min" id="container-size-w-min" placeholder="Width min">
+                        <p><= w <=</p>
+                        <input type="text" name="container-size-w-max" id="container-size-w-max" placeholder="Width max">
+                    </div>
+                    <div class="range-container">
+                        <h4>Scale/H</h4>
+                        <input type="text" name="container-size-h-min" id="container-size-h-min" placeholder="Height min">
+                        <p><= h <=</p>
+                        <input type="text" name="container-size-h-max" id="container-size-h-max" placeholder="Height max">
                     </div>
                 </div>
             </div>
@@ -757,10 +828,19 @@
             "type": "info"
         }))
     }
+    
     function infoModel() {
         ws.send(JSON.stringify({
             "type": "modelInfo"
         }))
+    }
+    
+    function getContainer() {
+        ws.send(JSON.stringify({
+            "type": "getContainer",
+            "id": document.getElementById("container-selector").value
+        }))
+        
     }
     
     function useModel() {
@@ -792,9 +872,22 @@
         document.getElementById('parameter-container').innerText = `${containerId} (${containerName})`;
     }
 
+    function containerAiList() {
+        ws.send(JSON.stringify({
+            "type": "containerAiList"
+        }))
+    }
+    function containerAiClasses() {
+        ws.send(JSON.stringify({
+            "type": "containerAiClasses",
+            "model": document.getElementById('ai-container-model').value
+        }))
+    }
+    
     ws.onopen = () => {
         infoHardware();
         infoModel();
+        getContainer();
     }
     ws.onmessage = (e) => {
         const data = JSON.parse(e.data);
@@ -859,6 +952,37 @@
                         document.getElementById('model-selector').innerHTML += `<option value="ai-%NAME%">%NAME%</option>`.replaceAll("%NAME%", dataKey.split('.')[0]);
                     }
                 }
+                break;
+            case "containerAiList":
+                document.getElementById("ai-container-model").innerHTML = "";
+                for (const datum of data.available) {
+                    document.getElementById("ai-container-model").innerHTML += `<option value="%DATA%">%DATA%</option>`.replaceAll("%DATA%", datum.split('.')[0]);
+                }
+                containerAiClasses();
+                break;
+            case "containerAiClasses":
+                document.getElementById("ai-container-type").innerHTML = "";
+                for (const datum of data.classes) {
+                    document.getElementById("ai-container-type").innerHTML += `<option value="ai-classes-%DATA%">%DATA%</option>`.replaceAll("%DATA%", datum);
+                }
+                break;
+            case "getContainer":
+                containerAiList();
+                document.getElementById("ai-container-model").value = data.ai.model;
+                document.getElementById("ai-container-type").value = data.ai.type;
+                
+                document.getElementById("container-color-r-min").value = data.color.r.min;
+                document.getElementById("container-color-r-max").value = data.color.r.max;
+                document.getElementById("container-color-g-min").value = data.color.g.min;
+                document.getElementById("container-color-g-max").value = data.color.g.max;
+                document.getElementById("container-color-b-min").value = data.color.b.min;
+                document.getElementById("container-color-b-max").value = data.color.b.max;
+                
+                document.getElementById("container-size-w-min").value = data.size.w.min;
+                document.getElementById("container-size-w-max").value = data.size.w.max;
+                document.getElementById("container-size-h-min").value = data.size.h.min;
+                document.getElementById("container-size-h-max").value = data.size.h.max;
+                break;
         }
     };
     ws.onclose = () => {
@@ -897,6 +1021,9 @@
                 updateHardware();
             })
         });
+        document.getElementById('container-selector').addEventListener('change', (e) => {
+            getContainer()  
+        })
         document.querySelectorAll('#settings-devices select').forEach(selector => {
             selector.addEventListener('mousedown', (e) => {
                 infoHardware();

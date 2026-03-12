@@ -92,6 +92,23 @@ async def proceed_ws(data):
     elif data["type"] == "useModel":
         config.config['ai']['default_model'] = data["model"]
         config.update_config()
+    elif data["type"] == "getContainer":
+        await Socket.send({
+            "type": "getContainer",
+            "container": config.get_container(data["id"])
+        })
+    elif data["type"] == "setContainer":
+        config.set_container(data["id"], data["container"])
+    elif data["type"] == "containerAiList":
+        await Socket.send({
+            "type": "containerAiList",
+            "available": config.get_ai_available()
+        })
+    elif data["type"] == "containerAiClasses":
+        await Socket.send({
+            "type": "containerAiClasses",
+            "classes": config.get_ai_classes(data["model"])
+        })
 
 @app.get("/video")
 async def video_feed():

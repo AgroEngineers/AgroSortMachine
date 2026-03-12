@@ -19,22 +19,27 @@ def think(frame):
     if xmin == 0 or ymin == 0 or xmax >= w - 1 or ymax >= h - 1:
         return None
 
+    object_size = get_object_size(frame, xmin, ymin, xmax)
+    object_color = get_object_color(frame, object_size)
+
+    return {
+        "size": object_size,
+        "color": object_color
+    }
+
+def get_object_color(frame, mask):
+    object_pixels = frame[mask > 0]
+    b, g, r = object_pixels.mean(axis=0)
+    return r, g, b
+
+def get_object_size(xmax, xmin, ymax, ymin):
     width_px = xmax - xmin
     height_px = ymax - ymin
 
     width_cm = width_px / pixels_per_cm
     height_cm = height_px / pixels_per_cm
 
-    object_pixels = frame[mask > 0]
-    b, g, r = object_pixels.mean(axis=0)
-
-    rgb = (int(r), int(g), int(b))
-
-    return {
-        "width_cm": width_cm,
-        "height_cm": height_cm,
-        "color_rgb": rgb
-    }
+    return width_cm, height_cm
 
 def get_object_mask(frame):
     hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
