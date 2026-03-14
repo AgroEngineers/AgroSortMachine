@@ -97,7 +97,7 @@ def get_ai_classes(model_name):
 
 def get_container(id_):
     for c in config["containers"]:
-        if c["id"] == id_:
+        if str(c['id']) == str(id_):
             return c
     return None
 

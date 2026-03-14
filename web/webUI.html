@@ -248,7 +248,7 @@
 
         }
 
-        .modal-settings div h2 {
+        .modal-settings > div > h2 {
             color: white;
             text-align: center;
         }
@@ -322,6 +322,9 @@
         .range-container input {
             width: 38%;
         }
+        .name-container input {
+            width: 100%;
+        }
     </style>
 </head>
 <body>
@@ -375,7 +378,7 @@
                 </div>
             </div>
             <div id="settings-container">
-                <h2>Containers</h2>
+                <h2 style="margin-bottom: 5px">Containers</h2>
                 <div id="container-settings">
                     <select id="container-selector">
                         <option value="1">1</option>
@@ -386,6 +389,9 @@
                         <option value="6">6</option>
                         <option value="7">7</option>
                     </select>
+                    <div class="name-container">
+                        <input type="text" id="container-name" placeholder="Container name">
+                    </div>
                     <div class="ai-container">
                         <h4>AI</h4>
                         <select id="ai-container-model"></select>
@@ -968,20 +974,22 @@
                 break;
             case "getContainer":
                 containerAiList();
-                document.getElementById("ai-container-model").value = data.ai.model;
-                document.getElementById("ai-container-type").value = data.ai.type;
+                document.getElementById("container-name").value = data.container.name;
                 
-                document.getElementById("container-color-r-min").value = data.color.r.min;
-                document.getElementById("container-color-r-max").value = data.color.r.max;
-                document.getElementById("container-color-g-min").value = data.color.g.min;
-                document.getElementById("container-color-g-max").value = data.color.g.max;
-                document.getElementById("container-color-b-min").value = data.color.b.min;
-                document.getElementById("container-color-b-max").value = data.color.b.max;
+                document.getElementById("ai-container-model").value = data.container.ai.model;
+                document.getElementById("ai-container-type").value = data.container.ai.type;
                 
-                document.getElementById("container-size-w-min").value = data.size.w.min;
-                document.getElementById("container-size-w-max").value = data.size.w.max;
-                document.getElementById("container-size-h-min").value = data.size.h.min;
-                document.getElementById("container-size-h-max").value = data.size.h.max;
+                document.getElementById("container-color-r-min").value = data.container.color.r.min;
+                document.getElementById("container-color-r-max").value = data.container.color.r.max;
+                document.getElementById("container-color-g-min").value = data.container.color.g.min;
+                document.getElementById("container-color-g-max").value = data.container.color.g.max;
+                document.getElementById("container-color-b-min").value = data.container.color.b.min;
+                document.getElementById("container-color-b-max").value = data.container.color.b.max;
+                
+                document.getElementById("container-size-w-min").value = data.container.size.width.min;
+                document.getElementById("container-size-w-max").value = data.container.size.width.max;
+                document.getElementById("container-size-h-min").value = data.container.size.height.min;
+                document.getElementById("container-size-h-max").value = data.container.size.height.max;
                 break;
         }
     };
