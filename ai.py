@@ -25,7 +25,7 @@ async def think(frame):
         object_found = True
 
         container = config.find(
-            result["ai"][0],
+            result["ai"],
             config.get_default_model(),
             result["color"][0],
             result["color"][1],
@@ -36,16 +36,26 @@ async def think(frame):
 
         await backend.Socket.send({
             "type": "parameter",
-            "containerId": container if result["ai"] is not None else None,
+            "container": container if result["ai"] is not None else None,
             "aiType": result["ai"] if result["ai"] is not None else None,
             "aiName": config.get_default_model() if result["ai"] is not None else None,
             "r": int(result["color"][0]),
             "g": int(result["color"][1]),
             "b": int(result["color"][2]),
             "w": int(result["size"][0]),
-            "h": int(result["size"][1]),
-            "containerName": container["name"] if container is not None else None
+            "h": int(result["size"][1])
         })
+        if allow_control:
+            print(allow_control)
+            import hardware
+            layout = hardware.containers_layout[int(container['id'])-1] if container is not None else {1: hardware.ServoState.OPEN, 2: hardware.ServoState.OPEN, 3: hardware.ServoState.OPEN}
+            print(layout)
+            await hardware.sync({
+                "motor": hardware.MotorState.FORWARD,
+                "servo_1": layout[1],
+                "servo_2": layout[2],
+                "servo_3": layout[3]
+            })
 
     elif available is None and object_found:
         object_found = False

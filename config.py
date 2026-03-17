@@ -255,7 +255,7 @@ def read_config():
         create_config()
         config = json.loads(config_pattern)
 
-    if config["ai"]["default_model"] is not "":
+    if config["ai"]["default_model"] != "":
         ai.load_model(config["ai"]["default_model"])
 
 
@@ -276,21 +276,24 @@ def range_overlap(a, b):
 
 def find(type_, model, r, g, b, width, height):
     for c in config["containers"]:
+        print(type_, model, r, g, b, width, height)
+        print(c)
+
         if c["ai"]["type"] != type_:
             continue
         if c["ai"]["model"] != model:
             continue
 
-        if not (c["color"]["r"]["min"] <= r <= c["color"]["r"]["max"]):
+        if not (int(c["color"]["r"]["min"]) <= int(r) <= int(c["color"]["r"]["max"])):
             continue
-        if not (c["color"]["g"]["min"] <= g <= c["color"]["g"]["max"]):
+        if not (int(c["color"]["g"]["min"]) <= int(g) <= int(c["color"]["g"]["max"])):
             continue
-        if not (c["color"]["b"]["min"] <= b <= c["color"]["b"]["max"]):
+        if not (int(c["color"]["b"]["min"]) <= int(b) <= int(c["color"]["b"]["max"])):
             continue
 
-        if not (c["size"]["width"]["min"] <= width <= c["size"]["width"]["max"]):
+        if not (int(c["size"]["width"]["min"]) <= int(width) <= int(c["size"]["width"]["max"])):
             continue
-        if not (c["size"]["height"]["min"] <= height <= c["size"]["height"]["max"]):
+        if not (int(c["size"]["height"]["min"]) <= int(height) <= int(c["size"]["height"]["max"])):
             continue
 
         return c

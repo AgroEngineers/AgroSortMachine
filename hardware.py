@@ -21,6 +21,38 @@ class ServoState(Enum):
     LEFT = 'l'
     RIGHT = 'r'
 
+containers_layout = [
+    {
+        1: ServoState.LEFT,
+        2: ServoState.OPEN,
+        3: ServoState.OPEN,
+    },
+    {
+        1: ServoState.RIGHT,
+        2: ServoState.OPEN,
+        3: ServoState.OPEN,
+    },
+    {
+        1: ServoState.OPEN,
+        2: ServoState.RIGHT,
+        3: ServoState.OPEN,
+    },
+    {
+        1: ServoState.OPEN,
+        2: ServoState.LEFT,
+        3: ServoState.OPEN,
+    },
+    {
+        1: ServoState.OPEN,
+        2: ServoState.OPEN,
+        3: ServoState.LEFT,
+    },
+    {
+        1: ServoState.OPEN,
+        2: ServoState.OPEN,
+        3: ServoState.RIGHT
+    }
+]
 
 class Hardware:
     def __init__(self, port_id: int, baud_rate: int = 115200):
@@ -109,7 +141,6 @@ class Camera:
 
     async def generate_frames(self):
         try:
-            print("Viewport stream opened")
             while True:
                 success, frame = self.camera.read()
                 if not success:
@@ -123,7 +154,7 @@ class Camera:
                     yield (b'--frame\r\n'
                            b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n')
         finally:
-            print("Viewport stream closed")
+            pass
 
 
 machine: Optional[Hardware] = None

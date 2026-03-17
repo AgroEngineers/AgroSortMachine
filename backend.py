@@ -34,6 +34,7 @@ async def websocket_endpoint(ws: WebSocket):
     await ws.accept()
     Socket.ws = ws
     ai.object_found = False
+    ai.allow_control = False
     try:
         while True:
             await proceed_ws(loads(await ws.receive_text()))
@@ -62,7 +63,6 @@ async def upload_model(
     return {"status": "ok", "name": name}
 
 async def proceed_ws(data):
-    print(data)
     if data["type"] == "mode":
         ai.allow_control = not bool(data["manual"])
     elif data["type"] == "sync":
@@ -83,8 +83,6 @@ async def proceed_ws(data):
         await connect_machine(data["port"])
     elif data["type"] == "connectCam":
         await connect_camera(data["port"])
-    elif data["type"] == "disconnect":
-        abandon()
     elif data["type"] == "modelInfo":
         await Socket.send({
             "type": "modelInfo",

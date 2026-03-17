@@ -21,7 +21,7 @@
             background-color: #373737;
 
             display: grid;
-            
+
             grid-template-rows: 1fr;
             grid-template-columns: 1fr 4fr 1fr;
         }
@@ -334,11 +334,13 @@
         .name-container input {
             width: 100%;
         }
+
         .setting-and-presentation-container {
             justify-self: flex-end;
             display: flex;
             flex-direction: column;
         }
+
         .setting-and-presentation-container > button {
             padding: 10px;
             margin: 5px;
@@ -486,7 +488,7 @@
         </div>
     </div>
     <div class="data" id="data">
-        <h1>Camera data</h1>
+        <h1>Object information</h1>
         <table>
             <tbody>
             <tr>
@@ -732,12 +734,12 @@
         const width = 400;
         const height = 100;
 
-        drawContainer(canvas.width - width, canvas.height / 2 - height - 10, activeContainerId === 1, 1);
-        drawContainer(canvas.width - width + 50, canvas.height / 2 + height - 40, activeContainerId === 2, 2);
-        drawContainer(canvas.width - width + 105, canvas.height / 2 + height - 40, activeContainerId === 3, 3);
-        drawContainer(canvas.width - width + 150, canvas.height / 2 - height - 10, activeContainerId === 4, 4);
-        drawContainer(canvas.width - width + 205, canvas.height / 2 - height - 10, activeContainerId === 5, 5);
-        drawContainer(canvas.width - width + 255, canvas.height / 2 + height - 40, activeContainerId === 6, 6);
+        drawContainer(canvas.width - width, canvas.height / 2 - height - 10, activeContainerId == 1, 1);
+        drawContainer(canvas.width - width + 50, canvas.height / 2 + height - 40, activeContainerId == 2, 2);
+        drawContainer(canvas.width - width + 105, canvas.height / 2 + height - 40, activeContainerId == 3, 3);
+        drawContainer(canvas.width - width + 150, canvas.height / 2 - height - 10, activeContainerId == 4, 4);
+        drawContainer(canvas.width - width + 205, canvas.height / 2 - height - 10, activeContainerId == 5, 5);
+        drawContainer(canvas.width - width + 255, canvas.height / 2 + height - 40, activeContainerId == 6, 6);
         drawContainer(canvas.width - 45, canvas.height / 2 - 25, activeContainerId > 6, 7);
 
         ctx.fillStyle = "white";
@@ -841,6 +843,72 @@
                 break;
         }
     }
+    
+    function updateControls() {
+        if (motorState === MotorState.STOP) {
+            document.getElementById("motor-stop").checked = true;
+            document.getElementById("motor-forward").checked = false;
+            document.getElementById("motor-backward").checked = false;
+        }
+        if (motorState === MotorState.FORWARD) {
+            document.getElementById("motor-stop").checked = false;
+            document.getElementById("motor-forward").checked = true;
+            document.getElementById("motor-backward").checked = false;
+        }
+        if (motorState === MotorState.BACKWARD) {
+            document.getElementById("motor-stop").checked = false;
+            document.getElementById("motor-forward").checked = false;
+            document.getElementById("motor-backward").checked = true;
+        }
+        
+        if (servo1State === ServoState.OPEN){
+            document.getElementById("servo-1-open").checked = true;
+            document.getElementById("servo-1-left").checked = false;
+            document.getElementById("servo-1-right").checked = false;
+        }
+        if (servo1State === ServoState.LEFT){
+            document.getElementById("servo-1-open").checked = false;
+            document.getElementById("servo-1-left").checked = true;
+            document.getElementById("servo-1-right").checked = false;
+        }
+        if (servo1State === ServoState.RIGHT){
+            document.getElementById("servo-1-open").checked = false;
+            document.getElementById("servo-1-left").checked = false;
+            document.getElementById("servo-1-right").checked = true;
+        }
+
+        if (servo2State === ServoState.OPEN){
+            document.getElementById("servo-2-open").checked = true;
+            document.getElementById("servo-2-left").checked = false;
+            document.getElementById("servo-2-right").checked = false;
+        }
+        if (servo2State === ServoState.LEFT){
+            document.getElementById("servo-2-open").checked = false;
+            document.getElementById("servo-2-left").checked = true;
+            document.getElementById("servo-2-right").checked = false;
+        }
+        if (servo2State === ServoState.RIGHT){
+            document.getElementById("servo-2-open").checked = false;
+            document.getElementById("servo-2-left").checked = false;
+            document.getElementById("servo-2-right").checked = true;
+        }
+        
+        if (servo3State === ServoState.OPEN){
+            document.getElementById("servo-3-open").checked = true;
+            document.getElementById("servo-3-left").checked = false;
+            document.getElementById("servo-3-right").checked = false;
+        }
+        if (servo3State === ServoState.LEFT){
+            document.getElementById("servo-3-open").checked = false;
+            document.getElementById("servo-3-left").checked = true;
+            document.getElementById("servo-3-right").checked = false;
+        }
+        if (servo3State === ServoState.RIGHT){
+            document.getElementById("servo-3-open").checked = false;
+            document.getElementById("servo-3-left").checked = false;
+            document.getElementById("servo-3-right").checked = true;
+        }
+    }
 
     function setMode(isManual) {
         isControlsManual = isManual;
@@ -849,7 +917,11 @@
         });
         document.querySelectorAll('input[type="radio"].component').forEach(radio => {
             radio.disabled = !isManual
-        })
+        });
+        ws.send(JSON.stringify({
+            "type": "mode",
+            "manual": isControlsManual
+        }));
     }
 
     function checkReady() {
@@ -918,7 +990,7 @@
         <div id="parameter-color-box" style="background-color: rgb(${r}, ${g}, ${b})" class="data-color"></div>
         ${r}, ${g}, ${b}`;
         document.getElementById('parameter-size').innerText = `${w}, ${h} (cm)`;
-        document.getElementById('parameter-container').innerText = containerId === undefined ? `7 (Trash)` : `${containerId} (${containerName})`;
+        document.getElementById('parameter-container').innerText = containerId === "" ? `7 (Trash)` : `${containerId} (${containerName})`;
     }
 
     function containerAiList() {
@@ -1019,11 +1091,12 @@
                 servo1State = data.servo_1;
                 servo2State = data.servo_2;
                 servo3State = data.servo_3;
-                updateCanvas()
+                updateCanvas();
+                updateControls();
                 break;
             case "parameter":
-                activeContainerId = data.containerId ?? 7;
-                updateParameter(data.aiType, data.aiName, data.r, data.g, data.b, data.w, data.h, data.d, data.containerId, data.containerName);
+                activeContainerId = data.container === null ? 7 : parseInt(data.container.id);
+                updateParameter(data.aiType, data.aiName, data.r, data.g, data.b, data.w, data.h, data.container === null ? 7 : parseInt(data.container.id), data.container === null ? "Trash" : data.container.name);
                 updateCanvas()
                 break;
             case "modelInfo":
@@ -1147,7 +1220,7 @@
                 }
             });
         });
-        
+
         document.getElementById('ai-container-model').addEventListener('change', (e) => {
             containerAiClasses();
         })
