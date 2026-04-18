@@ -1,18 +1,14 @@
 # WebUI
-fastapi==0.128.8
-starlette==0.49.3
-uvicorn==0.39.0
-websockets==15.0.1
-python-multipart==0.0.20
+fastapi
+starlette
+uvicorn
+websockets
+python-multipart
 
 # Machine control
-pyserial==3.5
+pyserial
 
 # AI
 numpy==1.26.4
-Pillow>=9.0.0
-
-tensorflow
-
-opencv-python==4.13.0.92; platform_machine == "x86_64"
-opencv-python-headless>=4.5.0; platform_machine == "aarch64"
+Pillow
+opencv-python
