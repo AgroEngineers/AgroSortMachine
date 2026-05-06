@@ -28,6 +28,7 @@ async def think(frame):
 
     if real_object is not None and real_object.detected and not object_found:
         object_found = True
+        hw.set_direction("stop")
         object_frame = frame[
             real_object.ymin:real_object.ymax,
             real_object.xmin:real_object.xmax
@@ -45,7 +46,7 @@ async def think(frame):
         except Exception:
             hw_state = False
 
-        if ai_state:
+        if ai_state and ai_result is not None:
             results.update({
                 f"{engine.get_id_by_module(ai)}_baseai_model":
                     ai_result.model.split('.')[0] if ai_result else "NIAY",
@@ -53,10 +54,10 @@ async def think(frame):
                     ai_result.label if ai_result else "NIAY"
             })
 
-        if hw_state:
+        if hw_state and hw_results is not None:
             for hw_res in hw_results:
                 results.update(get_parameter_normal(hw_res, engine.get_id_by_module(hw)))
-        if ai_state:
+        if ai_state and ai_parameters is not None:
             for ai_res in ai_parameters:
                 results.update(get_parameter_normal(ai_res, engine.get_id_by_module(ai)))
 
@@ -84,7 +85,11 @@ async def think(frame):
             "container": containers.find_container(results)
         })
         if allow_control:
-            await backend.Socket.send(hw.set_container(results["container"][0]))
+            try:
+                logman.log(f"Route to container #{results['container'][0]}")
+                await backend.Socket.send(hw.set_container(results["container"][0]))
+            except Exception:
+                pass
         await backend.Socket.send({"type": "parameter", "parameters": results})
 
     elif real_object is None or (not real_object.detected and object_found):

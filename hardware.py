@@ -1,5 +1,6 @@
 import backend
 from engine import hw
+import time
 
 
 async def abandon():
@@ -35,17 +36,19 @@ async def get_gates():
     return ["open", "left", "right"]
 
 async def sync(data):
-    direction = data.get("direction")
-    if direction:
+    direction = data.get("direction") or data.get("motor")
+    if direction is not None:
         hw.set_direction(direction)
-
+    else:
+        hw.set_direction("stop")
+    time.sleep(0.1)
     gates = data.get("gates")
-    for servo in hw.CONFIGURATION["servos"]:
-        port = servo["port"]
-        hw.set_gate(port, gates[port-1])
+    for i, servo in enumerate(hw.CONFIGURATION["servos"]):
+        hw.set_gate(i, gates[i])
+        time.sleep(0.1)
     await backend.Socket.send({
         "type": "sync",
-        "motor": direction,
+        "motor": direction.lower() if direction is not None else "open",
         "servo_1": gates[0],
         "servo_2": gates[1],
         "servo_3": gates[2],
